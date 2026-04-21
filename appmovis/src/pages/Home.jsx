@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import MovieList from "../components/MovieList";
 import Filter from "../components/Filter";
-import AddMovie from "../components/AddMovie";
+import axios from "axios";
+//import AddMovie from "../components/AddMovie";
+
 
 export default function Home() {
   const [movies, setMovies] = useState([]);
   const [title, setTitle] = useState("");
   const [rate, setRate] = useState("");
 
-  useEffect(() => {
+/*  useEffect(() => {
     fetch(
       "https://api.themoviedb.org/3/movie/popular?api_key=c82ab0405fb981cfd52454edfc40eb87"
     )
@@ -27,11 +29,34 @@ export default function Home() {
         setMovies(formattedMovies);
       });
   }, []);
+*/
 
-  const addMovie = (newMovie) => {
-    setMovies((prev) => [newMovie, ...prev]);
+useEffect(() => {
+  const getMovies = async () => {
+    const response = await axios.get(
+      "https://api.themoviedb.org/3/movie/popular?api_key=c82ab0405fb981cfd52454edfc40eb87"
+    );
+
+    const formattedMovies = response.data.results.map((movie) => ({
+      id: movie.id,
+      title: movie.title,
+      description: movie.overview,
+      posterURL: movie.poster_path
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        : "https://via.placeholder.com/500x750?text=No+Image",
+      rating: movie.vote_average,
+    }));
+
+    setMovies(formattedMovies);
   };
 
+  getMovies();
+}, []);
+
+/*  const addMovie = (newMovie) => {
+    setMovies((prev) => [newMovie, ...prev]);
+  };
+*/
   const filteredMovies = useMemo(() => {
     return movies.filter((movie) => {
       const matchTitle = movie.title.toLowerCase().includes(title.toLowerCase());
@@ -52,7 +77,7 @@ export default function Home() {
           </p>
         </header>
 
-        <AddMovie addMovie={addMovie} />
+        {/* <AddMovie addMovie={addMovie} /> */}
         <Filter
           title={title}
           setTitle={setTitle}
